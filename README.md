@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Retell AI Clone
 
 A web application that replicates the core features of Retell AI, including AI-powered phone calls, call recording, transcription, analytics, and user management.
@@ -96,3 +97,6 @@ retell-clone/
 ## License
 
 MIT 
+=======
+# retell-ai-onits
+>>>>>>> 5a79dd7d6fade6106df8163bffcef7a341dee877
