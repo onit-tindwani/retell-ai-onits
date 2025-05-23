@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { logger } from '../utils/logger';
+import logger from '../utils/logger';
 import { cache } from '../utils/cache';
 
 const prisma = new PrismaClient();
@@ -19,18 +19,14 @@ export class TemplateService {
   async createTemplate(data: {
     userId: string;
     name: string;
-    description?: string;
     content: string;
-    variables: Record<string, string>;
   }) {
     try {
       const template = await prisma.template.create({
         data: {
           userId: data.userId,
           name: data.name,
-          description: data.description,
           content: data.content,
-          variables: data.variables,
         },
       });
 
@@ -46,7 +42,6 @@ export class TemplateService {
 
   async getTemplates(userId: string, filters?: {
     search?: string;
-    isActive?: boolean;
   }) {
     try {
       // Try to get from cache first
@@ -60,12 +55,8 @@ export class TemplateService {
         userId,
         ...(filters?.search && {
           OR: [
-            { name: { contains: filters.search, mode: 'insensitive' } },
-            { description: { contains: filters.search, mode: 'insensitive' } },
+            { name: { contains: filters.search, mode: 'insensitive' as const } },
           ],
-        }),
-        ...(filters?.isActive !== undefined && {
-          isActive: filters.isActive,
         }),
       };
 
@@ -89,10 +80,7 @@ export class TemplateService {
     userId: string,
     data: {
       name?: string;
-      description?: string;
       content?: string;
-      variables?: Record<string, string>;
-      isActive?: boolean;
     }
   ) {
     try {
@@ -182,10 +170,7 @@ export class TemplateService {
         data: {
           userId,
           name: `${template.name} (Copy)`,
-          description: template.description,
           content: template.content,
-          variables: template.variables,
-          isActive: false,
         },
       });
 

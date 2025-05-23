@@ -1,8 +1,7 @@
 import express from 'express';
-import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { checkJwt, checkUser } from './middleware/auth';
+import { checkUser } from './middleware/auth';
 import callsRouter from './routes/calls';
 import analyticsRouter from './routes/analytics';
 import settingsRouter from './routes/settings';
@@ -18,7 +17,6 @@ app.use(cors());
 app.use(express.json());
 
 // Auth middleware
-app.use(checkJwt);
 app.use(checkUser);
 
 // Routes

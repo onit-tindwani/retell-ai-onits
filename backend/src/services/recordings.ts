@@ -49,9 +49,7 @@ export class RecordingService {
         data: {
           userId: data.userId,
           callId: data.callId,
-          url: key,
           duration: 0, // Will be updated when processing is complete
-          size: data.file.length,
           format: data.format,
         },
       });
@@ -79,7 +77,7 @@ export class RecordingService {
       // Generate signed URL
       const command = new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: recording.url,
+        Key: `recordings/${recording.userId}/${recording.callId}.${recording.format}`,
       });
 
       const signedUrl = await getSignedUrl(s3Client, command, {
@@ -150,7 +148,7 @@ export class RecordingService {
       await s3Client.send(
         new DeleteObjectCommand({
           Bucket: process.env.AWS_S3_BUCKET,
-          Key: recording.url,
+          Key: `recordings/${recording.userId}/${recording.callId}.${recording.format}`,
         })
       );
 

@@ -14,10 +14,12 @@ const CallHistory: React.FC = () => {
   const [calls, setCalls] = useState<Call[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const API_URL = process.env.REACT_APP_API_URL;
+
   useEffect(() => {
     const fetchCalls = async () => {
       try {
-        const response = await fetch('/api/calls');
+        const response = await fetch(`${API_URL}/api/calls`);
         if (!response.ok) {
           throw new Error('Failed to fetch calls');
         }
@@ -31,7 +33,7 @@ const CallHistory: React.FC = () => {
     };
 
     fetchCalls();
-  }, []);
+  }, [API_URL]);
 
   const formatDuration = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);

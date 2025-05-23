@@ -10,7 +10,7 @@ router.post('/purchase-number', async (req, res) => {
     const result = await purchaseNumber(phoneNumber);
     res.json({ success: true, result });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, error: (error as any).message });
   }
 });
 

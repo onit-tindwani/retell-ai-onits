@@ -29,7 +29,7 @@ export const rateLimiterMiddleware = async (
     logger.warn(`Rate limit exceeded for user: ${req.user?.sub || req.ip}`);
     res.status(429).json({
       message: 'Too many requests, please try again later',
-      retryAfter: error.msBeforeNext / 1000,
+      retryAfter: (error as any).msBeforeNext / 1000,
     });
   }
 }; 

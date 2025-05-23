@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import logger from '../utils/logger';
 import { cache } from '../utils/cache';
 import { OpenAI } from 'openai';
+import { ChatCompletionMessageParam } from 'openai/resources/chat';
 
 const prisma = new PrismaClient();
 const openai = new OpenAI({
@@ -39,18 +40,18 @@ export class AIService {
 
       // Get conversation history from cache or database
       const historyKey = `conversation:${data.callId}`;
-      let history = await cache.get(historyKey) || [];
+      let history: Array<{ role: string; content: string }> = await cache.get(historyKey) || [];
 
       // Prepare messages for OpenAI
-      const messages = [
+      const messages: ChatCompletionMessageParam[] = [
         {
           role: 'system',
-          content: this.getPersonalityPrompt(user.aiPersonality),
+          content: this.getPersonalityPrompt(user.aiPersonality || 'default'),
         },
-        ...history,
+        ...history.map((msg) => ({ role: msg.role as 'system' | 'user' | 'assistant', content: msg.content || '' })),
         {
           role: 'user',
-          content: data.transcript,
+          content: data.transcript || '',
         },
       ];
 
@@ -62,12 +63,12 @@ export class AIService {
         max_tokens: 150,
       });
 
-      const aiResponse = response.choices[0].message.content;
+      const aiResponse = response.choices[0].message.content || '';
 
       // Update conversation history
       history = [
         ...history,
-        { role: 'user', content: data.transcript },
+        { role: 'user', content: data.transcript || '' },
         { role: 'assistant', content: aiResponse },
       ];
 
@@ -125,7 +126,7 @@ export class AIService {
         ],
       });
 
-      return response.choices[0].message.content;
+      return response.choices[0].message.content || '';
     } catch (error) {
       logger.error('Error summarizing call:', error);
       throw error;

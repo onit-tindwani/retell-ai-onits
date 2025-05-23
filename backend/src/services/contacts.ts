@@ -19,20 +19,16 @@ export class ContactService {
   async createContact(data: {
     userId: string;
     name: string;
-    phoneNumber: string;
+    phone: string;
     email?: string;
-    notes?: string;
-    tags?: string[];
   }) {
     try {
       const contact = await prisma.contact.create({
         data: {
           userId: data.userId,
           name: data.name,
-          phoneNumber: data.phoneNumber,
+          phone: data.phone,
           email: data.email,
-          notes: data.notes,
-          tags: data.tags || [],
         },
       });
 
@@ -48,7 +44,6 @@ export class ContactService {
 
   async getContacts(userId: string, filters?: {
     search?: string;
-    tags?: string[];
   }) {
     try {
       // Try to get from cache first
@@ -62,15 +57,10 @@ export class ContactService {
         userId,
         ...(filters?.search && {
           OR: [
-            { name: { contains: filters.search, mode: 'insensitive' } },
-            { phoneNumber: { contains: filters.search } },
-            { email: { contains: filters.search, mode: 'insensitive' } },
+            { name: { contains: filters.search, mode: 'insensitive' as const } },
+            { phone: { contains: filters.search } },
+            { email: { contains: filters.search, mode: 'insensitive' as const } },
           ],
-        }),
-        ...(filters?.tags && {
-          tags: {
-            hasSome: filters.tags,
-          },
         }),
       };
 
@@ -94,10 +84,8 @@ export class ContactService {
     userId: string,
     data: {
       name?: string;
-      phoneNumber?: string;
+      phone?: string;
       email?: string;
-      notes?: string;
-      tags?: string[];
     }
   ) {
     try {
@@ -150,10 +138,8 @@ export class ContactService {
 
   async importContacts(userId: string, contacts: Array<{
     name: string;
-    phoneNumber: string;
+    phone: string;
     email?: string;
-    notes?: string;
-    tags?: string[];
   }>) {
     try {
       const createdContacts = await prisma.$transaction(
@@ -162,10 +148,8 @@ export class ContactService {
             data: {
               userId,
               name: contact.name,
-              phoneNumber: contact.phoneNumber,
+              phone: contact.phone,
               email: contact.email,
-              notes: contact.notes,
-              tags: contact.tags || [],
             },
           })
         )
@@ -187,10 +171,8 @@ export class ContactService {
         where: { userId },
         select: {
           name: true,
-          phoneNumber: true,
+          phone: true,
           email: true,
-          notes: true,
-          tags: true,
         },
       });
 

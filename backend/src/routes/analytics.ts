@@ -162,7 +162,7 @@ router.get('/trends', async (req, res, next) => {
       day: 86400000,
       week: 604800000,
       month: 2592000000,
-    }[interval as string];
+    }[interval as string] || 86400000;
 
     while (currentDate <= end) {
       const nextDate = new Date(currentDate.getTime() + intervalMs);

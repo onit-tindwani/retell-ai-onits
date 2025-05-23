@@ -1,18 +1,12 @@
 import { PrismaClient } from '@prisma/client';
-import { Queue } from 'bull';
+import Queue from 'bull';
 import logger from '../utils/logger';
 import { cache } from '../utils/cache';
 
 const prisma = new PrismaClient();
 
 // Create a Bull queue for scheduled calls
-const scheduledCallsQueue = new Queue('scheduled-calls', {
-  redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD,
-  },
-});
+const scheduledCallsQueue = new Queue('scheduled-calls', process.env.REDIS_URL!);
 
 export class CallScheduler {
   private static instance: CallScheduler;
@@ -29,7 +23,7 @@ export class CallScheduler {
   }
 
   private initializeQueue() {
-    scheduledCallsQueue.process(async (job) => {
+    scheduledCallsQueue.process(async (job: any) => {
       try {
         const { scheduledCallId } = job.data;
         const scheduledCall = await prisma.scheduledCall.findUnique({
@@ -48,7 +42,6 @@ export class CallScheduler {
             phoneNumber: scheduledCall.phoneNumber,
             status: 'pending',
             templateId: scheduledCall.templateId,
-            contactId: scheduledCall.contactId,
           },
         });
 
@@ -75,7 +68,6 @@ export class CallScheduler {
     phoneNumber: string;
     scheduledAt: Date;
     templateId?: string;
-    contactId?: string;
   }) {
     try {
       const scheduledCall = await prisma.scheduledCall.create({
@@ -84,7 +76,6 @@ export class CallScheduler {
           phoneNumber: data.phoneNumber,
           scheduledAt: data.scheduledAt,
           templateId: data.templateId,
-          contactId: data.contactId,
         },
       });
 

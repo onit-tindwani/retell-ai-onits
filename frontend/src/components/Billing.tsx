@@ -16,6 +16,8 @@ interface BillingInfo {
   amount: number;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Billing: React.FC = () => {
   const [billingInfo, setBillingInfo] = useState<BillingInfo>({
     plan: 'free',
@@ -37,7 +39,7 @@ const Billing: React.FC = () => {
   useEffect(() => {
     const fetchBillingInfo = async () => {
       try {
-        const response = await fetch('/api/billing');
+        const response = await fetch(`${API_URL}/api/billing`);
         if (!response.ok) {
           throw new Error('Failed to fetch billing info');
         }

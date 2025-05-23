@@ -45,16 +45,6 @@ export const requireAuth = async (
   }
 };
 
-export const verifyToken = async (token: string) => {
-  try {
-    const decoded = await checkJwt({ headers: { authorization: `Bearer ${token}` } } as Request);
-    return decoded;
-  } catch (error) {
-    logger.error('Token verification failed:', error);
-    throw new Error('Invalid token');
-  }
-};
-
 // User existence check middleware
 export const checkUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -64,7 +54,7 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
     }
 
     const user = await prisma.user.findUnique({
-      where: { auth0Id: userId },
+      where: { id: userId },
     });
 
     if (!user) {
@@ -92,11 +82,11 @@ export const checkUser = async (req: Request, res: Response, next: NextFunction)
 export const checkSubscription = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const userId = req.auth?.payload.sub;
-    const billing = await prisma.billing.findUnique({
+    const subscription = await prisma.subscription.findUnique({
       where: { userId },
     });
 
-    if (!billing || billing.plan === 'free') {
+    if (!subscription || subscription.plan === 'free') {
       return res.status(403).json({ error: 'Subscription required' });
     }
 

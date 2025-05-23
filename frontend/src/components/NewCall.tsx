@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const NewCall: React.FC = () => {
   const navigate = useNavigate();
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -12,7 +14,7 @@ const NewCall: React.FC = () => {
 
     try {
       // TODO: Implement call creation logic
-      const response = await fetch('/api/calls', {
+      const response = await fetch(`${API_URL}/api/calls`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -2,6 +2,11 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.7",
     "@telnyx/webrtc": "^2.22.12",
-    "dotenv": "^16.5.0"
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.0"
+  },
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "tsc"
   }
 }

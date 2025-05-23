@@ -1,7 +1,6 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { PrismaClient } from '@prisma/client';
-import { verifyToken } from '../middleware/auth';
 import logger from '../utils/logger';
 
 const prisma = new PrismaClient();
@@ -13,22 +12,6 @@ export function initializeWebSocket(httpServer: HttpServer) {
       methods: ['GET', 'POST'],
       credentials: true,
     },
-  });
-
-  // Authentication middleware
-  io.use(async (socket, next) => {
-    try {
-      const token = socket.handshake.auth.token;
-      if (!token) {
-        return next(new Error('Authentication error'));
-      }
-
-      const decoded = await verifyToken(token);
-      socket.data.user = decoded;
-      next();
-    } catch (error) {
-      next(new Error('Authentication error'));
-    }
   });
 
   io.on('connection', (socket) => {
@@ -78,9 +61,7 @@ export function initializeWebSocket(httpServer: HttpServer) {
           data: {
             callId,
             userId,
-            url: recordingUrl,
             duration: 0, // Will be updated when recording is complete
-            size: 0, // Will be updated when recording is complete
             format: 'mp3',
           },
         });

@@ -1,6 +1,5 @@
 import Redis from 'ioredis';
 import config from '../config';
-import { CacheError } from './errors';
 import logger from './logger';
 
 class Cache {
@@ -27,7 +26,7 @@ class Cache {
       return data ? JSON.parse(data) : null;
     } catch (error) {
       logger.error('Cache get error:', error);
-      throw new CacheError('Failed to get data from cache');
+      throw new Error('Failed to get data from cache');
     }
   }
 
@@ -41,7 +40,7 @@ class Cache {
       }
     } catch (error) {
       logger.error('Cache set error:', error);
-      throw new CacheError('Failed to set data in cache');
+      throw new Error('Failed to set data in cache');
     }
   }
 
@@ -50,7 +49,7 @@ class Cache {
       await this.client.del(key);
     } catch (error) {
       logger.error('Cache delete error:', error);
-      throw new CacheError('Failed to delete data from cache');
+      throw new Error('Failed to delete data from cache');
     }
   }
 
@@ -62,7 +61,7 @@ class Cache {
       }
     } catch (error) {
       logger.error('Cache delete pattern error:', error);
-      throw new CacheError('Failed to delete pattern from cache');
+      throw new Error('Failed to delete pattern from cache');
     }
   }
 
@@ -71,7 +70,7 @@ class Cache {
       await this.client.flushall();
     } catch (error) {
       logger.error('Cache flush error:', error);
-      throw new CacheError('Failed to flush cache');
+      throw new Error('Failed to flush cache');
     }
   }
 

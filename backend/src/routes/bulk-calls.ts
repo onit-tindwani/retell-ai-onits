@@ -6,17 +6,6 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { bulkCallService } from '../services/bulkCall';
 import logger from '../utils/logger';
 
-// Extend Express Request type to include user
-declare global {
-  namespace Express {
-    interface Request {
-      user: {
-        id: string;
-      };
-    }
-  }
-}
-
 const router = Router();
 const prisma = new PrismaClient();
 

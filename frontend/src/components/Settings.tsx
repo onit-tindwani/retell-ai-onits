@@ -12,11 +12,13 @@ interface UserSettings {
   };
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Settings: React.FC = () => {
-  const { user } = useAuth0();
+  const { user: auth0User } = useAuth0();
   const [settings, setSettings] = useState<UserSettings>({
-    name: '',
-    email: '',
+    name: auth0User?.name || '',
+    email: auth0User?.email || '',
     phoneNumber: '',
     aiPersonality: 'default',
     notifications: {
@@ -30,7 +32,7 @@ const Settings: React.FC = () => {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/settings');
+        const response = await fetch(`${API_URL}/api/settings`);
         if (!response.ok) {
           throw new Error('Failed to fetch settings');
         }
@@ -51,7 +53,7 @@ const Settings: React.FC = () => {
     setIsSaving(true);
 
     try {
-      const response = await fetch('/api/settings', {
+      const response = await fetch(`${API_URL}/api/settings`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

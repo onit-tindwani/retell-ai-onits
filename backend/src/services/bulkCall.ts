@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { Queue } from 'bull';
+import Queue from 'bull';
 import logger from '../utils/logger';
 import { cache } from '../utils/cache';
 import { templateService } from './templates';
@@ -7,13 +7,7 @@ import { templateService } from './templates';
 const prisma = new PrismaClient();
 
 // Create a Bull queue for bulk calls
-const bulkCallsQueue = new Queue('bulk-calls', {
-  redis: {
-    host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379'),
-    password: process.env.REDIS_PASSWORD,
-  },
-});
+const bulkCallsQueue = new Queue('bulk-calls', process.env.REDIS_URL!);
 
 export class BulkCallService {
   private static instance: BulkCallService;
@@ -30,7 +24,7 @@ export class BulkCallService {
   }
 
   private initializeQueue() {
-    bulkCallsQueue.process(async (job) => {
+    bulkCallsQueue.process(async (job: any) => {
       try {
         const { userId, phoneNumber, templateId, variables } = job.data;
 

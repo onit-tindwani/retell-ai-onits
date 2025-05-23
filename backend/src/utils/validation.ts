@@ -38,47 +38,43 @@ export const validateDateTime = (dateTime: string): boolean => {
 
 export const validateRequired = (value: any, fieldName: string): void => {
   if (value === undefined || value === null || value === '') {
-    throw new ValidationError(`${fieldName} is required`);
+    throw new ValidationError({ fieldName: [`${fieldName} is required`] });
   }
 };
 
 export const validateLength = (value: string, fieldName: string, min: number, max: number): void => {
   if (value.length < min || value.length > max) {
-    throw new ValidationError(
-      `${fieldName} must be between ${min} and ${max} characters`,
-    );
+    throw new ValidationError({ fieldName: [`${fieldName} must be between ${min} and ${max} characters`] });
   }
 };
 
 export const validateEnum = (value: string, fieldName: string, enumValues: string[]): void => {
   if (!enumValues.includes(value)) {
-    throw new ValidationError(
-      `${fieldName} must be one of: ${enumValues.join(', ')}`,
-    );
+    throw new ValidationError({ fieldName: [`${fieldName} must be one of: ${enumValues.join(', ')}`] });
   }
 };
 
 export const validateNumber = (value: number, fieldName: string, min?: number, max?: number): void => {
   if (typeof value !== 'number' || isNaN(value)) {
-    throw new ValidationError(`${fieldName} must be a number`);
+    throw new ValidationError({ fieldName: [`${fieldName} must be a number`] });
   }
   if (min !== undefined && value < min) {
-    throw new ValidationError(`${fieldName} must be greater than or equal to ${min}`);
+    throw new ValidationError({ fieldName: [`${fieldName} must be greater than or equal to ${min}`] });
   }
   if (max !== undefined && value > max) {
-    throw new ValidationError(`${fieldName} must be less than or equal to ${max}`);
+    throw new ValidationError({ fieldName: [`${fieldName} must be less than or equal to ${max}`] });
   }
 };
 
 export const validateArray = (value: any[], fieldName: string, minLength?: number, maxLength?: number): void => {
   if (!Array.isArray(value)) {
-    throw new ValidationError(`${fieldName} must be an array`);
+    throw new ValidationError({ fieldName: [`${fieldName} must be an array`] });
   }
   if (minLength !== undefined && value.length < minLength) {
-    throw new ValidationError(`${fieldName} must have at least ${minLength} items`);
+    throw new ValidationError({ fieldName: [`${fieldName} must have at least ${minLength} items`] });
   }
   if (maxLength !== undefined && value.length > maxLength) {
-    throw new ValidationError(`${fieldName} must have at most ${maxLength} items`);
+    throw new ValidationError({ fieldName: [`${fieldName} must have at most ${maxLength} items`] });
   }
 };
 

@@ -5,8 +5,8 @@ import compression from 'compression';
 import morgan from 'morgan';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import { config } from './config';
-import logger, { stream } from './utils/logger';
+import config from './config';
+import logger from './utils/logger';
 import { cache } from './utils/cache';
 import { PrismaClient } from '@prisma/client';
 
@@ -18,7 +18,7 @@ import recordingRoutes from './routes/recordings';
 import analyticsRoutes from './routes/analytics';
 import settingsRoutes from './routes/settings';
 import billingRoutes from './routes/billing';
-import bulkCallRoutes from './routes/bulkCalls';
+import bulkCallRoutes from './routes/bulk-calls';
 import telnyxRoutes from './routes/telnyx';
 
 // Initialize Express app
@@ -29,17 +29,17 @@ const prisma = new PrismaClient();
 // Initialize Socket.IO
 const io = new Server(httpServer, {
   cors: {
-    origin: config.server.cors.origin,
+    origin: config.cors.origin,
     credentials: true,
   },
 });
 
 // Middleware
 app.use(helmet());
-app.use(cors(config.server.cors));
+app.use(cors({ origin: config.cors.origin, credentials: true }));
 app.use(compression());
 app.use(express.json());
-app.use(morgan('combined', { stream }));
+app.use(morgan('combined'));
 
 // Health check endpoint
 app.get('/health', async (req, res) => {
@@ -90,7 +90,7 @@ app.use((err: any, req: express.Request, res: express.Response, next: express.Ne
     status: 'error',
     code,
     message,
-    ...(config.server.env === 'development' && { stack: err.stack }),
+    ...(config.env === 'development' && { stack: err.stack }),
   });
 });
 
@@ -117,10 +117,10 @@ io.on('connection', (socket) => {
 });
 
 // Start server
-const PORT = config.server.port;
+const PORT = config.port;
 httpServer.listen(PORT, () => {
   logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${config.server.env}`);
+  logger.info(`Environment: ${config.env}`);
 });
 
 // Handle graceful shutdown

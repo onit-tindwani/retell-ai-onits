@@ -11,112 +11,132 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  email         String         @unique
-  name          String?
-  auth0Id       String         @unique
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  settings      UserSettings?
-  subscription  Subscription?
-  calls         Call[]
-  recordings    Recording[]
-  payments      Payment[]
-  analytics     Analytics[]
-  bulkCalls     BulkCall[]
+  id             String    @id @default(uuid())
+  email          String    @unique
+  name           String?
+  phoneNumber    String?   // Added for user profile
+  auth0Id        String?   // For Auth0 integration
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  aiPersonality  String?   // For AI personality (if not in Settings)
+  settings       Settings?
+  subscription   Subscription?
+  calls          Call[]
+  payments       Payment[]
+  recordings     Recording[]
+  bulkCalls      BulkCall[]
+  contacts       Contact[]
+  scheduledCalls ScheduledCall[]
+  templates      Template[]
 }
 
-model UserSettings {
-  id                String   @id @default(uuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  language          String   @default("en")
-  timezone          String   @default("UTC")
-  notificationEmail String?
-  notificationPhone String?
-  aiPersonality     String   @default("professional")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+model Settings {
+  id            String   @id @default(uuid())
+  userId        String   @unique
+  user          User     @relation(fields: [userId], references: [id])
+  theme         String?
+  language      String?
+  timezone      String?
+  aiPersonality String?  // For AI personality (if you want it here)
 }
 
 model Subscription {
-  id                  String   @id @default(uuid())
-  userId              String   @unique
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeId            String   @unique
-  status              String
-  plan                String
-  currentPeriodStart  DateTime
-  currentPeriodEnd    DateTime
-  cancelAtPeriodEnd   Boolean  @default(false)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  id                String   @id @default(uuid())
+  userId            String   @unique
+  user              User     @relation(fields: [userId], references: [id])
+  stripeId          String
+  status            String
+  plan              String
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean?
+  createdAt         DateTime @default(now())
 }
 
 model Call {
-  id          String   @id @default(uuid())
+  id          String      @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User        @relation(fields: [userId], references: [id])
   phoneNumber String
   status      String
   duration    Int?
   transcript  String?
+  sentiment   String?     // Added for analytics
+  templateId  String?     // For bulk/scheduled calls
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   recording   Recording?
   analytics   Analytics?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  scheduledCallId String? // For scheduled calls
 }
 
 model Recording {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
   callId    String   @unique
-  call      Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
-  url       String
-  duration  Int
-  format    String
-  size      Int
+  call      Call     @relation(fields: [callId], references: [id])
+  format    String?
+  duration  Int?
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Payment {
   id        String   @id @default(uuid())
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  stripeId  String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  stripeId  String
   amount    Int
   currency  String
   status    String
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
 
 model Analytics {
-  id            String   @id @default(uuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  callId        String   @unique
-  call          Call     @relation(fields: [callId], references: [id], onDelete: Cascade)
-  sentiment     String?
-  topics        String[]
-  keywords      String[]
-  summary       String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id        String   @id @default(uuid())
+  callId    String   @unique
+  call      Call     @relation(fields: [callId], references: [id])
+  sentiment String?
+  createdAt DateTime @default(now())
 }
 
 model BulkCall {
+  id                String   @id @default(uuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id])
+  contacts          Json     // Array of contact IDs or phone numbers
+  templateId        String?
+  delayBetweenCalls Int?
+  status            String?
+  createdAt         DateTime @default(now())
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  phone     String
+  email     String?
+  createdAt DateTime @default(now())
+}
+
+model ScheduledCall {
   id          String   @id @default(uuid())
   userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status      String
-  totalCalls  Int
-  completed   Int      @default(0)
-  failed      Int      @default(0)
-  template    String?
-  phoneNumbers String[]
+  user        User     @relation(fields: [userId], references: [id])
+  phoneNumber String
+  templateId  String?
+  scheduledAt DateTime
+  status      String?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+}
+
+model Template {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  content   String
+  createdAt DateTime @default(now())
 } 
